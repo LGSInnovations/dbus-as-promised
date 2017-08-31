@@ -1,0 +1,49 @@
+{
+  "name": "dbus-as-promised",
+  "version": "0.1.0",
+  "description": "Extends node-dbus with a Promise-based API",
+  "//": [
+    "See: http://2ality.com/2017/06/pkg-esnext.html",
+    "and: http://2ality.com/2017/07/npm-packages-via-babel.html"
+  ],
+  "main": "cjs/index.js",
+  "esnext": "esm/index.js",
+
+  "scripts": {
+    "build": "yarn && babel esm --out-dir cjs",
+    "prepublishOnly": "npm run build",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LGSInnovations/dbus-as-promised.git"
+  },
+  "author": "James Cook <jcook@lgsinnovations.com>",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/LGSInnovations/dbus-as-promised/issues"
+  },
+  "homepage": "https://github.com/LGSInnovations/dbus-as-promised#readme",
+
+  "dependencies": {
+    "dbus": "^1.0.0"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-env": "^1.6.0",
+    "babel-register": "^6.26.0"
+  },
+  "babel": {
+    "presets": [
+      [
+        "env",
+        {
+          "targets": {
+            "node": "current"
+          }
+        }
+      ]
+    ]
+  }
+}
