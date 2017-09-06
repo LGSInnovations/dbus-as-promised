@@ -40,20 +40,35 @@ DBus.getBus = function (name) {
   return bus;
 }
 
+function unwrapInterface(thing) {
+  return (thing && thing._iface) ? thing.objectPath : thing;
+}
+
 // wrapper that takes a DBus interface and exposes its
 // methods, properties and signals with hooks allowing
 // them to be extended using 'class' style code.
 class InterfaceWrapper extends EventEmitter {
   constructor(iface) {
     super();
-
+    
+    this.objectPath = iface.objectPath;
     this._iface = iface;
     this._boundSignalHandlers = [];
 
-    // export all DBus methods that aren't overridden
+    // export all DBus methods that aren't overridden, and auto-unwrap
+    // all InterfaceWrapper arguments passed to their corresponding object paths
+    // TODO: translate args and returns based on declared signature
     for (let name in iface.object.method)
     {
-      if (!this[name]) this[name] = iface[name];
+      // TODO: check this, working from memory of structures here
+      // TODO: similar autotranslation of properties?
+      let methodInfo = iface.object.method[name];
+      let transformArgs = this._transformMethodArgs.bind(this, name, methodInfo.in);
+      let transformRet = this._transformMethodReturn.bind(this, name, methodInfo.out);
+      
+      if (!this[name]) this[name] = async function (...args) {
+        return transformRet(await iface[name](...(await transformArgs(args))));
+      };
     }
 
     // expose the properties interface
@@ -76,7 +91,7 @@ class InterfaceWrapper extends EventEmitter {
       }
     });
   }
-
+  
   get methods() {
     return Object.keys(this._iface.object.method).sort();
   }
@@ -88,7 +103,16 @@ class InterfaceWrapper extends EventEmitter {
   get signals() {
     return Object.keys(this._iface.object.signal).sort();
   }
-
+  
+  _transformMethodArgs(method, sig, args) {
+    return args.map(unwrapInterface);
+  }
+  
+  _transformMethodReturn(method, sig, ret) {
+    // TODO: auto-wrap returned object paths?
+    return ret;
+  }
+  
   async _interpretSignal(signal, args) {
     return args;
   }
@@ -108,4 +132,5 @@ class InterfaceWrapper extends EventEmitter {
 }
 
 DBus.InterfaceWrapper = InterfaceWrapper;
+DBus.unwrapInterface = unwrapInterface;
 module.exports = DBus;
