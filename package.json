@@ -1,6 +1,6 @@
 {
   "name": "dbus-as-promised",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Extends node-dbus with a Promise-based API",
   "//": [
     "See: http://2ality.com/2017/06/pkg-esnext.html",
